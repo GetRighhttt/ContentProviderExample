@@ -15,30 +15,33 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mainBinding: ActivityMainBinding
 
-    // variables necessary for permission request
-    private val manifestPermissions =
-        arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
-    private val permissionRequestCode: Int = 111
-
+    /*
+    Only need a single instance of each of these variables so for type safety and memory
+    allocation we can put these in a companion object, which essentially means they are singletons
+    for the main activity.
+     */
     companion object {
+        private val manifestPermissions =
+            arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+        const val permissionRequestCode: Int = 111
         const val displayName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
         const val phoneNumber = ContactsContract.CommonDataKinds.Phone.NUMBER
         const val id = ContactsContract.CommonDataKinds.Phone._ID
+
+        /*
+        In order to get contact information we must access inbuilt class that provides inbuilt data for
+        contacts. We declare a variable here so that we can use this variable in other instances
+        as well for the contacts. The class name is Contacts Contract.
+
+        Generally, we just want the name and number, however for this example we are going to look at
+        the ID as well.
+         */
+        private val contactColumns = listOf<String>(
+            displayName,
+            phoneNumber,
+            id
+        ).toTypedArray()
     }
-
-    /*
-    In order to get contact information we must access inbuilt class that provides inbuilt data for
-    contacts. We declare a variable here so that we can use this variable in other instances
-    as well for the contacts. The class name is Contacts Contract.
-
-    Generally, we just want the name and number, however for this example we are going to look at
-    the ID as well.
-     */
-    private val contactColumns = listOf<String>(
-        displayName,
-        phoneNumber,
-        id
-    ).toTypedArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             displayName
         )
 
-        var contactAdapter =
+        val contactAdapter =
             SimpleCursorAdapter(
                 this,
                 android.R.layout.simple_list_item_2,
@@ -141,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                     ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                     contactColumns,
                     "$displayName LIKE ?",
-                    Array(1){"$newText%"},
+                    Array(1) { "$newText%" },
                     displayName
                 )
                 contactAdapter.changeCursor(rs)
