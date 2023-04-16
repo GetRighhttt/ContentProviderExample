@@ -23,11 +23,16 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val manifestPermissions =
             arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
-        const val permissionRequestCode: Int = 111
-        const val displayName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
-        const val phoneNumber = ContactsContract.CommonDataKinds.Phone.NUMBER
-        private const val id = ContactsContract.CommonDataKinds.Phone._ID
-        private val uriContacts = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+
+        /*
+        CONSTANTS that don't change
+         */
+        const val PERMISSION_REQUEST_CODE: Int = 111
+        const val DISPLAY_NAME = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+        const val PHONE_NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER
+        private const val ID_CONTACT = ContactsContract.CommonDataKinds.Phone._ID
+        private val URI_CONTACTS = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        const val GRANTED_PERMISSION = PackageManager.PERMISSION_GRANTED
 
         /*
         In order to get contact information we must access inbuilt class that provides inbuilt data for
@@ -36,11 +41,13 @@ class MainActivity : AppCompatActivity() {
 
         Generally, we just want the name and number, however for this example we are going to look at
         the ID as well.
+
+        We must cast this as a typedArray() due to the parameters for contacts.
          */
         private val contactColumns = listOf<String>(
-            displayName,
-            phoneNumber,
-            id
+            DISPLAY_NAME,
+            PHONE_NUMBER,
+            ID_CONTACT
         ).toTypedArray()
     }
 
@@ -62,12 +69,12 @@ class MainActivity : AppCompatActivity() {
                 this,
                 // make each permission a string with anonymous parameter
                 manifestPermissions.forEach { _ -> }.toString()
-            ) != PackageManager.PERMISSION_GRANTED
+            ) != GRANTED_PERMISSION
         ) {
             ActivityCompat.requestPermissions(
                 this,
                 manifestPermissions,
-                permissionRequestCode
+                PERMISSION_REQUEST_CODE
             )
         } else {
             readContacts()
@@ -85,10 +92,10 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // if request code is valid && permissions are granted, read contacts
-        if (requestCode == permissionRequestCode &&
+        if (requestCode == PERMISSION_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-            grantResults[1] == PackageManager.PERMISSION_GRANTED
+            grantResults[0] == GRANTED_PERMISSION &&
+            grantResults[1] == GRANTED_PERMISSION
         ) {
             readContacts()
         }
@@ -104,18 +111,18 @@ class MainActivity : AppCompatActivity() {
     private fun readContacts() {
 
         val from = listOf<String>(
-            displayName,
-            phoneNumber,
+            DISPLAY_NAME,
+            PHONE_NUMBER,
         ).toTypedArray()
 
         val to = intArrayOf(android.R.id.text1, android.R.id.text2)
 
         var rs = contentResolver.query(
-            uriContacts, // URI - maps to the table of the information provided by content provider
+            URI_CONTACTS, // URI - maps to the table of the information provided by content provider
             contactColumns, // projection - array of columns included for each row
             null, // selection - specifies criteria for selecting rows
             null, // selection arguments - arguments for row selection
-            displayName // sort order - how the information is sorted
+            DISPLAY_NAME // sort order - how the information is sorted
         )
 
         /*
@@ -149,11 +156,11 @@ class MainActivity : AppCompatActivity() {
              */
             override fun onQueryTextChange(newText: String?): Boolean {
                 rs = contentResolver.query(
-                    uriContacts, // URI
+                    URI_CONTACTS, // URI
                     contactColumns, // projection
-                    "$displayName LIKE ?", // selection
+                    "$DISPLAY_NAME LIKE ?", // selection
                     Array(1) { "$newText%" }, // selection arguments
-                    displayName // sort order
+                    DISPLAY_NAME // sort order
                 )
                 contactAdapter.changeCursor(rs)
                 return false
