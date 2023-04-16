@@ -28,10 +28,10 @@ class MainActivity : AppCompatActivity() {
    not Java Util.)
     */
     private fun checkPermissions() {
-
         if (ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.READ_CONTACTS
+                // make each permission a string with anonymous parameter
+                manifestPermissions.forEach{ _ -> }.toString()
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        // if permissions are granted and request code is valid, read contacts
+        // if request code is valid && permissions are granted, read contacts
         if (requestCode == permissionRequestCode &&
             grantResults.isNotEmpty() && equals(PackageManager.PERMISSION_GRANTED)
         ) {
