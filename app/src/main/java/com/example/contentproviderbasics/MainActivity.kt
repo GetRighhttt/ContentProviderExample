@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -19,13 +20,20 @@ class MainActivity : AppCompatActivity() {
     Only need a single instance of each of these variables so for type safety and memory
     allocation we can put these in a companion object, which essentially means they are singletons
     for the main activity.
+
+    Adding Calender permissions also.
      */
     companion object {
         private val manifestPermissions =
-            arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+            arrayOf<String>(
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR
+            )
 
         /*
-        CONSTANTS that don't change
+        CONSTANTS that don't change for contacts and calender.
          */
         const val PERMISSION_REQUEST_CODE: Int = 111
         const val DISPLAY_NAME = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
@@ -33,6 +41,12 @@ class MainActivity : AppCompatActivity() {
         private const val ID_CONTACT = ContactsContract.CommonDataKinds.Phone._ID
         private val URI_CONTACTS = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
         const val GRANTED_PERMISSION = PackageManager.PERMISSION_GRANTED
+
+        // not actually going to show the calender but this is how it is done...
+        private const val CALENDER_NAME = CalendarContract.Calendars.NAME
+        private const val CALENDER_ID = CalendarContract.Calendars._ID
+        private val URI_CALENDER = CalendarContract.Calendars.CONTENT_URI
+
 
         /*
         In order to get contact information we must access inbuilt class that provides inbuilt data for
@@ -48,6 +62,11 @@ class MainActivity : AppCompatActivity() {
             DISPLAY_NAME,
             PHONE_NUMBER,
             ID_CONTACT
+        ).toTypedArray()
+
+        private val calenderColumns = listOf<String>(
+            CALENDER_ID,
+            CALENDER_NAME
         ).toTypedArray()
     }
 
@@ -78,6 +97,7 @@ class MainActivity : AppCompatActivity() {
             )
         } else {
             readContacts()
+            readCalender()
         }
     }
 
@@ -95,9 +115,12 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PERMISSION_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
             grantResults[0] == GRANTED_PERMISSION &&
-            grantResults[1] == GRANTED_PERMISSION
+            grantResults[1] == GRANTED_PERMISSION &&
+            grantResults[2] == GRANTED_PERMISSION &&
+            grantResults[3] == GRANTED_PERMISSION
         ) {
             readContacts()
+            readCalender()
         }
     }
 
@@ -167,4 +190,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    // Might complete in future...
+    private fun readCalender() {}
 }
