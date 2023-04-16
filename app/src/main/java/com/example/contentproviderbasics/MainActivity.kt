@@ -13,21 +13,22 @@ class MainActivity : AppCompatActivity() {
 
     // variables necessary for permission request
     private val manifestPermissions =
-        arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+        arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
     private val permissionRequestCode: Int = 111
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
-
+        checkPermissions()
     }
 
+    /*
+   First check if permission is granted by the user. Make sure to import Manifest(Android) and
+   not Java Util.)
+    */
     private fun checkPermissions() {
-        /*
-       First check if permission is granted by the user. Make sure to import Manifest(Android) and
-       not Java Util.)
-        */
+
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_CONTACTS
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf({ manifestPermissions }.toString()),
+                manifestPermissions,
                 permissionRequestCode
             )
         } else {
@@ -53,18 +54,16 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         // if permissions are granted and request code is valid, read contacts
         if (requestCode == permissionRequestCode &&
-            grantResults[0] == (PackageManager.PERMISSION_GRANTED) &&
-            grantResults[1] == (PackageManager.PERMISSION_GRANTED)
+            grantResults.isNotEmpty() && equals(PackageManager.PERMISSION_GRANTED)
         ) {
             readContacts()
         }
     }
 
     /*
-    method to read contacts if permission is granted.
+    Method to read contacts if permission is granted.
      */
     private fun readContacts() {
         TODO("Not yet implemented")
