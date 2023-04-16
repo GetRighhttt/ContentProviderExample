@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         const val permissionRequestCode: Int = 111
         const val displayName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
         const val phoneNumber = ContactsContract.CommonDataKinds.Phone.NUMBER
-        const val id = ContactsContract.CommonDataKinds.Phone._ID
+        private const val id = ContactsContract.CommonDataKinds.Phone._ID
 
         /*
         In order to get contact information we must access inbuilt class that provides inbuilt data for
@@ -47,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
+
+        // method that checks permissions when activity is first created
         checkPermissions()
     }
 
