@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         const val displayName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
         const val phoneNumber = ContactsContract.CommonDataKinds.Phone.NUMBER
         private const val id = ContactsContract.CommonDataKinds.Phone._ID
+        private val uriContacts = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
 
         /*
         In order to get contact information we must access inbuilt class that provides inbuilt data for
@@ -110,13 +111,18 @@ class MainActivity : AppCompatActivity() {
         val to = intArrayOf(android.R.id.text1, android.R.id.text2)
 
         var rs = contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            contactColumns,
-            null,
-            null,
-            displayName
+            uriContacts, // URI - maps to the table of the information provided by content provider
+            contactColumns, // projection - array of columns included for each row
+            null, // selection - specifies criteria for selecting rows
+            null, // selection arguments - arguments for row selection
+            displayName // sort order - how the information is sorted
         )
 
+        /*
+        Cursor adapter exposes data from a cursor to a listView. This adapter would be different
+        depending on how you plan on updating the screen with the content provider. We're using a
+        listView here so it's necessary to use this.
+         */
         val contactAdapter =
             SimpleCursorAdapter(
                 this,
@@ -143,11 +149,11 @@ class MainActivity : AppCompatActivity() {
              */
             override fun onQueryTextChange(newText: String?): Boolean {
                 rs = contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    contactColumns,
-                    "$displayName LIKE ?",
-                    Array(1) { "$newText%" },
-                    displayName
+                    uriContacts, // URI
+                    contactColumns, // projection
+                    "$displayName LIKE ?", // selection
+                    Array(1) { "$newText%" }, // selection arguments
+                    displayName // sort order
                 )
                 contactAdapter.changeCursor(rs)
                 return false
