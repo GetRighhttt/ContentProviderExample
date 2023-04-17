@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.CalendarContract
 import android.provider.ContactsContract
 import android.widget.SimpleCursorAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import com.example.contentproviderbasics.databinding.ActivityMainBinding
 
+/**
+ * Essentially, when working with content providers, you need to make sure you request permissions
+ * properly, get content resolvers, adapters, and queries in order.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainBinding: ActivityMainBinding
@@ -19,14 +24,35 @@ class MainActivity : AppCompatActivity() {
     Only need a single instance of each of these variables so for type safety and memory
     allocation we can put these in a companion object, which essentially means they are singletons
     for the main activity.
+
+    Adding Calender permissions also.
      */
     companion object {
         private val manifestPermissions =
-            arrayOf<String>(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
-        const val permissionRequestCode: Int = 111
-        const val displayName = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
-        const val phoneNumber = ContactsContract.CommonDataKinds.Phone.NUMBER
-        private const val id = ContactsContract.CommonDataKinds.Phone._ID
+            arrayOf<String>(
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR
+            )
+
+        /*
+        CONSTANTS that don't change for contacts and calender.
+         */
+        const val PERMISSION_REQUEST_CODE: Int = 111
+        const val DISPLAY_NAME = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+        const val PHONE_NUMBER = ContactsContract.CommonDataKinds.Phone.NUMBER
+        private const val ID_CONTACT = ContactsContract.CommonDataKinds.Phone._ID
+        private val URI_CONTACTS = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        const val GRANTED_PERMISSION = PackageManager.PERMISSION_GRANTED
+
+        /*
+        Not actually going to show the calender but this is how it is done...
+         */
+        private const val CALENDER_NAME = CalendarContract.Calendars.NAME
+        private const val CALENDER_ID = CalendarContract.Calendars._ID
+        private val URI_CALENDER = CalendarContract.Calendars.CONTENT_URI
+
 
         /*
         In order to get contact information we must access inbuilt class that provides inbuilt data for
@@ -35,11 +61,18 @@ class MainActivity : AppCompatActivity() {
 
         Generally, we just want the name and number, however for this example we are going to look at
         the ID as well.
+
+        We must cast this as a typedArray() due to the parameters for contacts.
          */
         private val contactColumns = listOf<String>(
-            displayName,
-            phoneNumber,
-            id
+            DISPLAY_NAME,
+            PHONE_NUMBER,
+            ID_CONTACT
+        ).toTypedArray()
+
+        private val calenderColumns = listOf<String>(
+            CALENDER_ID,
+            CALENDER_NAME
         ).toTypedArray()
     }
 
@@ -61,15 +94,16 @@ class MainActivity : AppCompatActivity() {
                 this,
                 // make each permission a string with anonymous parameter
                 manifestPermissions.forEach { _ -> }.toString()
-            ) != PackageManager.PERMISSION_GRANTED
+            ) != GRANTED_PERMISSION
         ) {
             ActivityCompat.requestPermissions(
                 this,
                 manifestPermissions,
-                permissionRequestCode
+                PERMISSION_REQUEST_CODE
             )
         } else {
             readContacts()
+            readCalender()
         }
     }
 
@@ -84,12 +118,15 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // if request code is valid && permissions are granted, read contacts
-        if (requestCode == permissionRequestCode &&
+        if (requestCode == PERMISSION_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-            grantResults[1] == PackageManager.PERMISSION_GRANTED
+            grantResults[0] == GRANTED_PERMISSION &&
+            grantResults[1] == GRANTED_PERMISSION &&
+            grantResults[2] == GRANTED_PERMISSION &&
+            grantResults[3] == GRANTED_PERMISSION
         ) {
             readContacts()
+            readCalender()
         }
     }
 
@@ -103,20 +140,25 @@ class MainActivity : AppCompatActivity() {
     private fun readContacts() {
 
         val from = listOf<String>(
-            displayName,
-            phoneNumber,
+            DISPLAY_NAME,
+            PHONE_NUMBER,
         ).toTypedArray()
 
         val to = intArrayOf(android.R.id.text1, android.R.id.text2)
 
         var rs = contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            contactColumns,
-            null,
-            null,
-            displayName
+            URI_CONTACTS, // URI - maps to the table of the information provided by content provider
+            contactColumns, // projection - array of columns included for each row
+            null, // selection - specifies criteria for selecting rows
+            null, // selection arguments - arguments for row selection
+            DISPLAY_NAME // sort order - how the information is sorted
         )
 
+        /*
+        Cursor adapter exposes data from a cursor to a listView. This adapter would be different
+        depending on how you plan on updating the screen with the content provider. We're using a
+        listView here so it's necessary to use this.
+         */
         val contactAdapter =
             SimpleCursorAdapter(
                 this,
@@ -143,15 +185,18 @@ class MainActivity : AppCompatActivity() {
              */
             override fun onQueryTextChange(newText: String?): Boolean {
                 rs = contentResolver.query(
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                    contactColumns,
-                    "$displayName LIKE ?",
-                    Array(1) { "$newText%" },
-                    displayName
+                    URI_CONTACTS, // URI
+                    contactColumns, // projection
+                    "$DISPLAY_NAME LIKE ?", // selection
+                    Array(1) { "$newText%" }, // selection arguments
+                    DISPLAY_NAME // sort order
                 )
                 contactAdapter.changeCursor(rs)
                 return false
             }
         })
     }
+
+    // Might complete in future...
+    private fun readCalender() {}
 }
