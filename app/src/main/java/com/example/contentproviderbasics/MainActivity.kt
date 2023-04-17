@@ -12,6 +12,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import com.example.contentproviderbasics.databinding.ActivityMainBinding
 
+/**
+ * Essentially, when working with content providers, you need to make sure you request permissions
+ * properly, get content resolvers, adapters, and queries in order.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mainBinding: ActivityMainBinding
@@ -42,7 +46,9 @@ class MainActivity : AppCompatActivity() {
         private val URI_CONTACTS = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
         const val GRANTED_PERMISSION = PackageManager.PERMISSION_GRANTED
 
-        // not actually going to show the calender but this is how it is done...
+        /*
+        Not actually going to show the calender but this is how it is done...
+         */
         private const val CALENDER_NAME = CalendarContract.Calendars.NAME
         private const val CALENDER_ID = CalendarContract.Calendars._ID
         private val URI_CALENDER = CalendarContract.Calendars.CONTENT_URI
