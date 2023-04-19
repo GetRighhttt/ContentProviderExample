@@ -64,17 +64,22 @@ class MainActivity : AppCompatActivity() {
 
         We must cast this as a typedArray() due to the parameters for contacts.
          */
-        private val contactColumns = listOf<String>(
-            DISPLAY_NAME,
-            PHONE_NUMBER,
-            ID_CONTACT
-        ).toTypedArray()
+        private val contactColumns by lazy {
+            listOf<String>(
+                DISPLAY_NAME,
+                PHONE_NUMBER,
+                ID_CONTACT
+            ).toTypedArray()
+        }
 
-        private val calenderColumns = listOf<String>(
-            CALENDER_ID,
-            CALENDER_NAME
-        ).toTypedArray()
+        private val calenderColumns by lazy {
+            listOf<String>(
+                CALENDER_ID,
+                CALENDER_NAME
+            ).toTypedArray()
+        }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
