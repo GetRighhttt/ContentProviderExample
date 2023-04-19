@@ -28,13 +28,14 @@ class MainActivity : AppCompatActivity() {
     Adding Calender permissions also.
      */
     companion object {
-        private val manifestPermissions =
+        private val manifestPermissions by lazy {
             arrayOf<String>(
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR
             )
+        }
 
         /*
         CONSTANTS that don't change for contacts and calender.
@@ -125,10 +126,7 @@ class MainActivity : AppCompatActivity() {
         // if request code is valid && permissions are granted, read contacts
         if (requestCode == PERMISSION_REQUEST_CODE &&
             grantResults.isNotEmpty() &&
-            grantResults[0] == GRANTED_PERMISSION &&
-            grantResults[1] == GRANTED_PERMISSION &&
-            grantResults[2] == GRANTED_PERMISSION &&
-            grantResults[3] == GRANTED_PERMISSION
+            grantResults.all { it == GRANTED_PERMISSION }
         ) {
             readContacts()
             readCalender()
@@ -144,12 +142,14 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("Recycle")
     private fun readContacts() {
 
-        val from = listOf<String>(
-            DISPLAY_NAME,
-            PHONE_NUMBER,
-        ).toTypedArray()
+        val from by lazy {
+            listOf<String>(
+                DISPLAY_NAME,
+                PHONE_NUMBER,
+            ).toTypedArray()
+        }
 
-        val to = intArrayOf(android.R.id.text1, android.R.id.text2)
+        val to by lazy { intArrayOf(android.R.id.text1, android.R.id.text2) }
 
         var rs = contentResolver.query(
             URI_CONTACTS, // URI - maps to the table of the information provided by content provider
