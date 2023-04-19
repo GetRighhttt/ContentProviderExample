@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
      */
     companion object {
         private val manifestPermissions by lazy {
-            arrayOf<String>(
+            arrayOf(
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.READ_CALENDAR,
@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
          */
         private const val CALENDER_NAME = CalendarContract.Calendars.NAME
         private const val CALENDER_ID = CalendarContract.Calendars._ID
+        // not used right now...
         private val URI_CALENDER = CalendarContract.Calendars.CONTENT_URI
 
 
@@ -66,15 +67,16 @@ class MainActivity : AppCompatActivity() {
         We must cast this as a typedArray() due to the parameters for contacts.
          */
         private val contactColumns by lazy {
-            listOf<String>(
+            listOf(
                 DISPLAY_NAME,
                 PHONE_NUMBER,
                 ID_CONTACT
             ).toTypedArray()
         }
 
+        // not used right now but will be used in the future when repo is updated...
         private val calenderColumns by lazy {
-            listOf<String>(
+            listOf(
                 CALENDER_ID,
                 CALENDER_NAME
             ).toTypedArray()
@@ -143,7 +145,7 @@ class MainActivity : AppCompatActivity() {
     private fun readContacts() {
 
         val from by lazy {
-            listOf<String>(
+            listOf(
                 DISPLAY_NAME,
                 PHONE_NUMBER,
             ).toTypedArray()
